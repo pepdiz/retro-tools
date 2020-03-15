@@ -55,7 +55,7 @@ Red [
  cleanup: func [] [lineas: copy "" lista: copy [] canvas/draw: copy [] p: 0x175 l/data: p] 
 
  ver-zx: function [] [msgbox zx-transform canvas/draw]
- save-zx: function [] [if sf: request-file/save/file/title %zx-draw.bas "Gardar como..." [write sf zx-transform canvas/draw]]
+ save-zx: function [] [if (sf: request-file/save/file/title %zx-draw.bas "Gardar como...") [write sf zx-transform canvas/draw]]
 
  p: 0x175
  lista: copy []
