@@ -1,6 +1,6 @@
 Red [
-  author: "Pep Diz"
-  description: "un programa para facer debuxos draw no speccy"
+  author: Pep Diz
+  description: un programa para facer debuxos draw no speccy
   Needs: 'View
 ]
  msgbox: function [msg [string!]] [

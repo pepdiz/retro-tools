@@ -8,6 +8,8 @@ Red [
   Needs: 'View
 ]
 
+w: make vector! [128 64 32 16 8 4 2 1]
+v: make vector! 8
 dimensions: [ "8x8" "8x16" "16x8" "16x16" "16x32" "32x16" "32x32" ]
 sprite: none 
 
@@ -62,32 +64,30 @@ novo: func [] [
   ]
 ]
 
-fl: func [f s a] [either tail? s [a] [r: fl :f next s (f a (first s))]]
-sum: func [a b] [a + b]
+fl: func [s /local a e] [a: 0 foreach e s [a: a + e] a]
 
-to-zx: function ["garda sprites en caraceres por filas"] [
-{ ejemplo
+to-zx: func [ /local ldata cf cc y x j r e] [
+{ Garda sprites por caracteres e filas
+  exemplo
   8x8 (char):  f1c1 f1c2 f1c3 ... f1c8 f2c1 ... f8c8
   16x16: char1 char2 char3 char4 = f1c1 ... f1c8 f2c1 ... f8c8 f1c9 ... f1c16 f8c16 ... f32c32
 }
-  w: make vector! [128 64 32 16 8 4 2 1]
-  v: make vector! 8
   ldata: copy []
   cf: 0 cc: 0
   while [cf < second sprite/size] [
     repeat y 8 [ 
       repeat x 8 [
          j: as-pair (cc + x) (cf + y) 
-         v/(x): either sprite/(j) = 0.0.0 [0] [1]
+         either sprite/(j) = 0.0.0 [v/(x): 1] [v/(x): 0]
       ]
-      append ldata fl :sum (v * w) 0         
+      append ldata fl (v * w)         
     ] 
     cc: cc + 8
     if cc >= first sprite/size [cc: 0 cf: cf + 8]
   ]
-  r: "DATA "
-  foreach v ldata [ 
-    append r reduce [v ","]
+  r: copy "DATA "
+  foreach e ldata [ 
+    append r reduce [e ","]
   ]   
   remove at r length? r
   r
@@ -108,15 +108,19 @@ save-png: function [] [
 ]
 
 ver: function [] [
+ unless none? sprite [
   view/flags [image sprite return button "OK" [unview] button "Gardar png" [save-png] ] 
-    [modal popup no-title no-buttons]  
+    [modal popup no-title no-buttons]
+ ]  
 ]
 
 ver-zx: function [] [
+ unless none? sprite [
   view/flags [
     tbas: area "" return button "OK" [unview] button "Gardar" [save-zx]
     do [tbas/text: to-zx] 
-  ] [modal popup no-title no-buttons]  
+  ] [modal popup no-title no-buttons]
+ ]  
 ]
 
 view [title "editor de sprites"
