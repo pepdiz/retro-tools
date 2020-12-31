@@ -17,7 +17,7 @@ check_file_cols () {
   [ "$OK_LINES" -eq "$FILE_LINES" ] 
 }
 
-bas-array () {
+bas_array () {
   if (( LINES > 0 && COLS > 0 )) ; then
 	  let LINES--
 	  let COLS--
@@ -26,7 +26,7 @@ bas-array () {
   fi
 }
 
-c-array () {
+c_array () {
   if (( LINES > 0 && COLS > 0 )) ; then
     echo "#define ${V}_ROWS $LINES"
     echo "#define ${V}_COLS $COLS"
@@ -36,7 +36,7 @@ c-array () {
   fi
 }
 
-asm-bytes () {
+asm_bytes () {
   echo "${V}_ROWS EQU $LINES"
   echo "${V}_COLS EQU $COLS" 
   echo "$V:"
@@ -44,7 +44,7 @@ asm-bytes () {
 #  sed -r -e 's/.* (([0-9]+,)+[0-9]+)/db \1/'
 }
 
-basm-bytes () {
+basm_bytes () {
   if (( LINES > 0 && COLS > 0 )) ; then
 	  echo "$V:"
 	  echo "ASM"
@@ -64,10 +64,10 @@ LINES=$(wc -l < $2)
 check_file_cols $2 $COLS || { echo "number of fields in file $2 are not the same in all lines"; exit 2; }
 
 case $1 in
-bas)	dos2unix < $2 | bas-array ;;
-basm)	dos2unix < $2 | basm-bytes ;;
-c)		dos2unix < $2 | c-array ;;
-asm)	dos2unix < $2 | asm-bytes ;;
+bas)	dos2unix < $2 | bas_array ;;
+basm)	dos2unix < $2 | basm_bytes ;;
+c)		dos2unix < $2 | c_array ;;
+asm)	dos2unix < $2 | asm_bytes ;;
 *)	sintaxis ;;
 esac
 
