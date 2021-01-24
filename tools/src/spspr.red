@@ -3,15 +3,23 @@ Red [
   Description: {Basic sprite editor mainly for zx spectrum}
   ToDo: {
      - handle colors and palettes
+       * choose color for empty pixel not used in any palette, 
+         OR
+         for each pixel maintain a mask (1 set 0 unset): this means keep cloned image with black/white 
+     - handle color conversion (rgb -> palette index [for each export format aka machine])
+     - handle color clash when necessary
      - export to different image formats
   }     
   Needs: 'View
-]
+  ]
 
 w: make vector! [128 64 32 16 8 4 2 1]
 v: make vector! 8
 dimensions: [ "8x8" "8x16" "16x8" "16x16" "16x32" "32x16" "32x32" ]
-sprite: none 
+sprite: none
+color-fondo: 220.220.220 
+color-grid: black
+color: black
 
 draw-grid:  function [] [
   w: first canvas/size h: second canvas/size
@@ -50,15 +58,20 @@ toggle-box: function [f e] [
       fila: y / hb + 1 
       col: x / wb + 1
       i: as-pair col fila 
-      either sprite/(i) = 0.0.0 [sprite/(i): 255.255.255] [sprite/(i): 0.0.0]
+      either sprite/(i) = color-fondo [sprite/(i): color] [sprite/(i): color-fondo] 
+;      either sprite/(i) = 0.0.0 [sprite/(i): 255.255.255] [sprite/(i): 0.0.0] 
       draw-image       
    ]
   ]
 ]
 
+update-image: function [] [
+  if not none? sprite [im/image: sprite]
+]
+
 novo: func [] [
   unless none? dim/selected [
-    sprite: make image! reduce [(to pair! pick dim/data dim/selected) 255.255.255]
+    sprite: make image! reduce [(to pair! pick dim/data dim/selected) color-fondo]
     canvas/draw: copy []  
     draw-grid
   ]
@@ -78,7 +91,7 @@ to-zx: func [ /local ldata cf cc y x j r e] [
     repeat y 8 [ 
       repeat x 8 [
          j: as-pair (cc + x) (cf + y) 
-         either sprite/(j) = 0.0.0 [v/(x): 1] [v/(x): 0]
+         either sprite/(j) = color [v/(x): 1] [v/(x): 0]
       ]
       append ldata fl (v * w)         
     ] 
@@ -123,8 +136,22 @@ ver-zx: function [] [
  ]  
 ]
 
-view [title "editor de sprites"
+change-color: func [c] [color: c]
+
+ler-paleta: function [/local r b] [
+  r: copy "" b: copy [below left]
+  foreach color [black blue red pink green cyan yellow white] [
+    append r rejoin ["style " 'b color ": " "base " color " 32x16 on-down [ change-color " color "] "] 
+    append b to-block rejoin ['b color]
+  ]
+  append to-block r b
+]
+
+view append [
+    title "editor de sprites"
+    style rojo: base red 32x16
+
     text "Columnas x Filas" dim: drop-list data dimensions [novo] 
     button "imaxe" [ver] button "zx" [ver-zx] return    
-    canvas: base 640x640 white on-down [toggle-box face event]
-]
+    canvas: base 640x640 white on-down [toggle-box face event update-image] 
+    below left im: image 32x32 pad 0x20 ] ler-paleta
